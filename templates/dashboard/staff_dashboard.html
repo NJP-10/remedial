@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff Dashboard - RideShare{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Overview Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h2 class="card-text">{{ total_users }}</h2>
+                    <div class="small">
+                        Riders: {{ total_riders }} | Customers: {{ total_customers }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Rides</h5>
+                    <h2 class="card-text">{{ active_rides }}</h2>
+                    <div class="small">Today: {{ today_rides }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Completed</h5>
+                    <h2 class="card-text">{{ completed_rides }}</h2>
+                    <div class="small">Value: ₱{{ total_earnings|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">System Balance</h5>
+                    <h2 class="card-text">₱{{ total_system_balance|floatformat:2 }}</h2>
+                    <div class="small">All user balances combined</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Activity Tabs -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#riders">Riders</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#customers">Customers</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#recent-activity">Recent Activity</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Riders Tab -->
+        <div class="tab-pane fade show active" id="riders">
+            <div class="card shadow">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Active Riders</h5>
+                        <a href="{% url 'staff-create-user' %}" class="btn btn-primary btn-sm">Add New Rider</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Rides Completed</th>
+                                    <th>Total Earnings</th>
+                                    <th>Current Balance</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rider in riders %}
+                                <tr>
+                                    <td>{{ rider.get_full_name }}</td>
+                                    <td>{{ rider.completed_rides_count }}</td>
+                                    <td>₱{{ rider.total_earnings|floatformat:2 }}</td>
+                                    <td>₱{{ rider.balance|floatformat:2 }}</td>
+                                    <td>
+                                        {% if rider.has_active_ride %}
+                                            <span class="badge bg-success">On Ride</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Available</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'staff-user-detail' rider.id %}" class="btn btn-sm btn-info">View Details</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div class="tab-pane fade" id="customers">
+            <div class="card shadow">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Registered Customers</h5>
+                        <a href="{% url 'staff-create-user' %}" class="btn btn-primary btn-sm">Add New Customer</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Total Rides</th>
+                                    <th>Total Spent</th>
+                                    <th>Current Balance</th>
+                                    <th>Last Activity</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for customer in customers %}
+                                <tr>
+                                    <td>{{ customer.get_full_name }}</td>
+                                    <td>{{ customer.total_rides_count }}</td>
+                                    <td>₱{{ customer.total_spent|floatformat:2 }}</td>
+                                    <td>₱{{ customer.balance|floatformat:2 }}</td>
+                                    <td>{{ customer.last_activity|default:"No activity yet"|timesince }} ago</td>
+                                    <td>
+                                        <a href="{% url 'staff-user-detail' customer.id %}" class="btn btn-sm btn-info">View Details</a>
+                                        <button class="btn btn-sm btn-success" onclick="showAddBalanceModal('{{ customer.id }}')">Add Balance</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Tab -->
+        <div class="tab-pane fade" id="recent-activity">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">System Activity Log</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for event in recent_events %}
+                        <div class="timeline-item">
+                            <div class="timeline-badge bg-{{ event.get_status_class }}">
+                                <i class="bi bi-clock"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>{{ event.get_event_type_display }}</h6>
+                                <p>{{ event.description }}</p>
+                                <small class="text-muted">{{ event.created_at|date:"F j, Y, g:i a" }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Balance Modal -->
+<div class="modal fade" id="addBalanceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Balance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addBalanceForm" method="post" action="">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount to Add (₱)</label>
+                        <input type="number" class="form-control" id="amount" name="amount" min="1" step="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Add Balance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+.timeline-item {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 20px;
+}
+.timeline-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    position: absolute;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+.timeline-content {
+    border-left: 2px solid #dee2e6;
+    padding-left: 20px;
+}
+</style>
+
+{% block extra_js %}
+<script>
+function showAddBalanceModal(userId) {
+    const form = document.getElementById('addBalanceForm');
+    form.action = `/staff/users/${userId}/add-balance/`;
+    const modal = new bootstrap.Modal(document.getElementById('addBalanceModal'));
+    modal.show();
+}
+</script>
+{% endblock %}
+{% endblock %}

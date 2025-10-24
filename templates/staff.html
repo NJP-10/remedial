@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Staff Dashboard - RideShare{% endblock %}</title>
+</head>
+<body>
+
+<div class="sidebar">
+    {% block sidebar_menu %}
+    <a href="{% url 'dashboard-home' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard-home' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a href="{% url 'dashboard-rides' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard-rides' %}active{% endif %}">
+        <i class="bi bi-car-front"></i> Rides
+    </a>
+    <a href="{% url 'dashboard-users' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard-users' %}active{% endif %}">
+        <i class="bi bi-people"></i> Users
+    </a>
+    <a href="{% url 'dashboard-events' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard-events' %}active{% endif %}">
+        <i class="bi bi-clock-history"></i> Events
+    </a>
+    <a href="{% url 'dashboard-create-user' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard-create-user' %}active{% endif %}">
+        <i class="bi bi-person-plus"></i> Create User
+    </a>
+    <hr class="text-white">
+    <a href="{% url 'profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+        <i class="bi bi-person-circle"></i> My Profile
+    </a>
+    {% endblock %}
+</div>
+
+<div class="content">
+    {% block user_role %}Staff Dashboard{% endblock %}
+    <!-- Add your staff-specific content here -->
+</div>
+
+</body>
+</html>

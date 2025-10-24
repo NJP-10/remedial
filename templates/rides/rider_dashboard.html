@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Rider Dashboard - RideShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Rides</h5>
+                    <h2 class="card-text">{{ active_rides.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Completed</h5>
+                    <h2 class="card-text">{{ total_completed }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Earnings</h5>
+                    <h2 class="card-text">₱{{ total_earnings|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Rides Section -->
+    {% if active_rides %}
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Your Active Rides</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Distance</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ride in active_rides %}
+                        <tr>
+                            <td>{{ ride.customer.get_full_name }}</td>
+                            <td>{{ ride.get_pickup_display }}</td>
+                            <td>{{ ride.get_destination_display }}</td>
+                            <td>{{ ride.total_distance }} km</td>
+                            <td>₱{{ ride.price|floatformat:2 }}</td>
+                            <td>
+                                <span class="badge bg-{{ ride.get_status_display_class }}">
+                                    {{ ride.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'ride-detail' ride.pk %}" class="btn btn-sm btn-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Available Rides Section -->
+    <div class="card shadow">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Available Rides</h4>
+        </div>
+        <div class="card-body">
+            {% if available_rides %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Distance</th>
+                            <th>Price</th>
+                            <th>Posted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ride in available_rides %}
+                        <tr>
+                            <td>{{ ride.customer.get_full_name }}</td>
+                            <td>{{ ride.get_pickup_display }}</td>
+                            <td>{{ ride.get_destination_display }}</td>
+                            <td>{{ ride.total_distance }} km</td>
+                            <td>₱{{ ride.price|floatformat:2 }}</td>
+                            <td>{{ ride.created_at|timesince }} ago</td>
+                            <td>
+                                <a href="{% url 'ride-detail' ride.pk %}" class="btn btn-sm btn-primary">View</a>
+                                <form method="post" action="{% url 'accept-ride' ride.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-5">
+                <h5 class="text-muted">No available rides at the moment</h5>
+                <p>Check back later for new ride requests</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

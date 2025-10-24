@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Rider Dashboard - RideShare{% endblock %}
+
+{% block user_role %}Rider Dashboard{% endblock %}
+
+{% block sidebar_menu %}
+    <a href="{% url 'rider-dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'rider-dashboard' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a href="{% url 'rider-available-rides' %}" class="sidebar-link {% if request.resolver_match.url_name == 'rider-available-rides' %}active{% endif %}">
+        <i class="bi bi-list-task"></i> Available Rides
+    </a>
+    <a href="{% url 'rider-active-rides' %}" class="sidebar-link {% if request.resolver_match.url_name == 'rider-active-rides' %}active{% endif %}">
+        <i class="bi bi-car-front"></i> My Active Rides
+    </a>
+    <a href="{% url 'rider-history' %}" class="sidebar-link {% if request.resolver_match.url_name == 'rider-history' %}active{% endif %}">
+        <i class="bi bi-clock-history"></i> Ride History
+    </a>
+    <hr class="text-white">
+    <a href="{% url 'profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+        <i class="bi bi-person-circle"></i> My Profile
+    </a>
+    <a href="#" class="sidebar-link">
+        <i class="bi bi-wallet2"></i> Balance: ₱{{ request.user.balance }}
+    </a>
+{% endblock %}

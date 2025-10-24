@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Ride - RideShare{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Edit Ride Details</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" id="editRideForm">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="pickup" class="form-label">Pickup Location</label>
+                        <select class="form-select" id="pickup" name="pickup" required>
+                            {% for code, name in ride.LOCATION_CHOICES %}
+                            <option value="{{ code }}" {% if ride.pickup == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="destination" class="form-label">Destination</label>
+                        <select class="form-select" id="destination" name="destination" required>
+                            {% for code, name in ride.LOCATION_CHOICES %}
+                            <option value="{{ code }}" {% if ride.destination == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div id="destinationError" class="invalid-feedback">
+                            Destination cannot be the same as pickup location
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Price Offer (₱)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₱</span>
+                            <input type="number"
+                                   class="form-control"
+                                   id="price"
+                                   name="price"
+                                   min="50"
+                                   step="1"
+                                   value="{{ ride.price }}"
+                                   required>
+                        </div>
+                        <div class="form-text">Minimum amount is ₱50</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            Update Ride
+                        </button>
+                        <a href="{% url 'ride-detail' ride.pk %}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('editRideForm').addEventListener('submit', function(e) {
+    const pickup = document.getElementById('pickup').value;
+    const destination = document.getElementById('destination').value;
+    const price = document.getElementById('price').value;
+
+    if (pickup === destination) {
+        e.preventDefault();
+        document.getElementById('destination').classList.add('is-invalid');
+        return false;
+    }
+
+    if (parseFloat(price) < 50) {
+        e.preventDefault();
+        alert('Minimum amount is ₱50');
+        return false;
+    }
+});
+
+document.getElementById('destination').addEventListener('change', function() {
+    const pickup = document.getElementById('pickup').value;
+    if (this.value === pickup) {
+        this.classList.add('is-invalid');
+    } else {
+        this.classList.remove('is-invalid');
+    }
+});
+</script>
+{% endblock %}

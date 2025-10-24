@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RideShare{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #212529;
+        }
+        .sidebar-link {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+        }
+        .sidebar-link:hover {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+        .sidebar-link.active {
+            background-color: #0d6efd;
+        }
+        .main-content {
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .navbar-brand img {
+            height: 30px;
+            margin-right: 10px;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0 sidebar">
+                <div class="d-flex flex-column">
+                    <div class="p-3 text-white">
+                        <h5>RideShare</h5>
+                        <p class="small">{% block user_role %}User{% endblock %}</p>
+                    </div>
+                    <hr class="text-white">
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Top Navigation -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav ms-auto">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                        {{ request.user.get_full_name }}
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{% url 'signout' %}">Sign Out</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Messages/Alerts -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Main Content Block -->
+                <div class="container-fluid">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
